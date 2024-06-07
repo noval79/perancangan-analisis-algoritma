@@ -37,7 +37,7 @@ def draw_vertical_road(x_cell, start_y_cell, end_y_cell):
         d.line([(middle_x, y), (middle_x, y + dotted_line_length)], fill='white', width=1)
 
 # Menggambar jalan utama horizontal dan vertikal
-draw_horizontal_road(2, 0, 4)
+draw_horizontal_road(3, 0, 10)
 draw_vertical_road(2, 0, 4)
 
 # Menyimpan gambar
