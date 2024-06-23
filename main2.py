@@ -53,7 +53,7 @@ BUILDING_MINIMUMS = {
 }
 
 class MapGenerator:
-    def __init__(self, size):
+    def _init_(self, size):
         self.size = size
         self.map = [[EMPTY for _ in range(size)] for _ in range(size)]
         self.generate_map()
@@ -198,8 +198,8 @@ class MapGenerator:
         return self.map
 
 class MapDisplay(tk.Frame):
-    def __init__(self, parent, map_data):
-        super().__init__(parent)
+    def _init_(self, parent, map_data):
+        super()._init_(parent)
         self.parent = parent
         self.map_data = map_data
 

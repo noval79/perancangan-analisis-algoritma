@@ -133,21 +133,29 @@ class MapGenerator:
         if direction == 'up':
             for i in range(x-1, -1, -1):
                 if self.map[i][y] != EMPTY:
+                    if self.map[i][y] == 'horizontal_road':
+                        self.map[i][y] = 'tjunction_down'
                     break
                 self.map[i][y] = 'vertical_road'
         elif direction == 'down':
             for i in range(x+1, self.size):
                 if self.map[i][y] != EMPTY:
+                    if self.map[i][y] == 'horizontal_road':
+                        self.map[i][y] = 'tjunction_up'
                     break
                 self.map[i][y] = 'vertical_road'
         elif direction == 'left':
             for j in range(y-1, -1, -1):
                 if self.map[x][j] != EMPTY:
+                    if self.map[x][j] == 'vertical_road':
+                        self.map[x][j] = 'tjunction_right'
                     break
                 self.map[x][j] = 'horizontal_road'
         elif direction == 'right':
             for j in range(y+1, self.size):
                 if self.map[x][j] != EMPTY:
+                    if self.map[x][j] == 'vertical_road':
+                        self.map[x][j] = 'tjunction_left'
                     break
                 self.map[x][j] = 'horizontal_road'
 
@@ -192,7 +200,7 @@ class MapGenerator:
                 # Ensure a minimum distance of 2 cells from other buildings
                 if i in range(x, x + width) and j in range(y, y + height):
                     continue
-                if self.map[i][j] in BUILDING_SIZES and self.map[i][j] != TREE:
+                if self.map[i][j] in BUILDING_SIZES:
                     return False
         return road_found
 
@@ -219,25 +227,25 @@ class MapDisplay(tk.Frame):
         self.parent = parent
         self.map_data = map_data
 
-        # Load images with green background
+        # Load images
         self.images = {
-            'vertical_road': self.load_image("asset/vertical_road.png"),
-            'horizontal_road': self.load_image("asset/horizontal_road.png"),
-            'crossroad': self.load_image("asset/crossroad.png"),
-            'tjunction_up': self.load_image("asset/tjunction_up.png"),
-            'tjunction_down': self.load_image("asset/tjunction_down.png"),
-            'tjunction_left': self.load_image("asset/tjunction_left.png"),
-            'tjunction_right': self.load_image("asset/tjunction_right.png"),
-            'turn_left_down': self.load_image("asset/turn_left_down.png"),
-            'turn_left_up': self.load_image("asset/turn_left_up.png"),
-            'turn_right_up': self.load_image("asset/turn_right_up.png"),
-            'turn_right_down': self.load_image("asset/turn_right_down.png"),
-            BIG_BUILDING: self.load_image(f"asset/{BUILDING_IMAGES[BIG_BUILDING]}"),
-            MEDIUM_BUILDING: self.load_image(f"asset/{BUILDING_IMAGES[MEDIUM_BUILDING]}"),
-            SMALL_BUILDING: self.load_image(f"asset/{BUILDING_IMAGES[SMALL_BUILDING]}"),
-            HOUSE: self.load_image(f"asset/{BUILDING_IMAGES[HOUSE]}"),
-            TREE: self.load_image(f"asset/{BUILDING_IMAGES[TREE]}"),
-            'grass': self.load_image("asset/grass.png")  # Add grass image
+            'vertical_road': ImageTk.PhotoImage(Image.open("asset/vertical_road.png")),
+            'horizontal_road': ImageTk.PhotoImage(Image.open("asset/horizontal_road.png")),
+            'crossroad': ImageTk.PhotoImage(Image.open("asset/crossroad.png")),
+            'tjunction_up': ImageTk.PhotoImage(Image.open("asset/tjunction_up.png")),
+            'tjunction_down': ImageTk.PhotoImage(Image.open("asset/tjunction_down.png")),
+            'tjunction_left': ImageTk.PhotoImage(Image.open("asset/tjunction_left.png")),
+            'tjunction_right': ImageTk.PhotoImage(Image.open("asset/tjunction_right.png")),
+            'turn_left_down': ImageTk.PhotoImage(Image.open("asset/turn_left_down.png")),
+            'turn_left_up': ImageTk.PhotoImage(Image.open("asset/turn_left_up.png")),
+            'turn_right_up': ImageTk.PhotoImage(Image.open("asset/turn_right_up.png")),
+            'turn_right_down': ImageTk.PhotoImage(Image.open("asset/turn_right_down.png")),
+            BIG_BUILDING: ImageTk.PhotoImage(Image.open(f"asset/{BUILDING_IMAGES[BIG_BUILDING]}")),
+            MEDIUM_BUILDING: ImageTk.PhotoImage(Image.open(f"asset/{BUILDING_IMAGES[MEDIUM_BUILDING]}")),
+            SMALL_BUILDING: ImageTk.PhotoImage(Image.open(f"asset/{BUILDING_IMAGES[SMALL_BUILDING]}")),
+            HOUSE: ImageTk.PhotoImage(Image.open(f"asset/{BUILDING_IMAGES[HOUSE]}")),
+            TREE: ImageTk.PhotoImage(Image.open(f"asset/{BUILDING_IMAGES[TREE]}")),
+            'grass': ImageTk.PhotoImage(Image.open("asset/grass.png"))  # Add grass image
         }
 
         # Frame for map canvas and buttons
@@ -245,7 +253,7 @@ class MapDisplay(tk.Frame):
         self.main_frame.pack(fill=tk.BOTH, expand=True)
 
         # Canvas to display the map with scrollbars
-        self.canvas = tk.Canvas(self.main_frame, bg="white", scrollregion=(0, 0, MAP_SIZE * CELL_SIZE, MAP_SIZE * CELL_SIZE))
+        self.canvas = tk.Canvas(self.main_frame, bg="green", scrollregion=(0, 0, MAP_SIZE * CELL_SIZE, MAP_SIZE * CELL_SIZE))
         self.canvas.grid(row=0, column=0, sticky=tk.NSEW)
         
         self.hbar = tk.Scrollbar(self.main_frame, orient=tk.HORIZONTAL, command=self.canvas.xview)
@@ -267,18 +275,13 @@ class MapDisplay(tk.Frame):
         self.redesign_button = tk.Button(self.button_frame, text="Redesign", command=self.redesign_map)
         self.redesign_button.pack()
 
-    def load_image(self, path):
-        image = Image.open(path).convert("RGBA")
-        data = image.getdata()
-        new_data = []
-        for item in data:
-            # Change all transparent (0 alpha) pixels to green
-            if item[3] == 0:
-                new_data.append((0, 255, 0, 255))  # Green
-            else:
-                new_data.append(item)
-        image.putdata(new_data)
-        return ImageTk.PhotoImage(image)
+        # Bind mouse wheel events for scrolling
+        self.canvas.bind_all("<MouseWheel>", self.on_mouse_wheel)  # Windows
+        self.canvas.bind_all("<Shift-MouseWheel>", self.on_horizontal_scroll)  # Horizontal scroll for Windows
+        self.canvas.bind_all("<Button-4>", self.on_mouse_wheel)    # Linux (scroll up)
+        self.canvas.bind_all("<Button-5>", self.on_mouse_wheel)    # Linux (scroll down)
+        self.canvas.bind_all("<Shift-Button-4>", self.on_horizontal_scroll)    # Horizontal scroll for Linux
+        self.canvas.bind_all("<Shift-Button-5>", self.on_horizontal_scroll)    # Horizontal scroll for Linux
 
     def draw_map(self):
         self.canvas.delete("all")
@@ -310,6 +313,18 @@ class MapDisplay(tk.Frame):
         self.map_data = map_generator.get_map()
         # Redraw map
         self.draw_map()
+
+    def on_mouse_wheel(self, event):
+        if event.num == 4 or event.delta > 0:
+            self.canvas.yview_scroll(-1, "units")
+        elif event.num == 5 or event.delta < 0:
+            self.canvas.yview_scroll(1, "units")
+    
+    def on_horizontal_scroll(self, event):
+        if event.num == 4 or event.delta > 0:
+            self.canvas.xview_scroll(-1, "units")
+        elif event.num == 5 or event.delta < 0:
+            self.canvas.xview_scroll(1, "units")
 
 def main():
     root = tk.Tk()
