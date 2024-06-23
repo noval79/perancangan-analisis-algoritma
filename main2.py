@@ -2,26 +2,21 @@ from PIL import Image, ImageTk
 import tkinter as tk
 import random
 
-# Constants for map size
 MAP_SIZE = 150
-CELL_SIZE = 32  # Adjust to the size of the image per cell
+CELL_SIZE = 32
 
-# Constants for different road types
 EMPTY = 0
 ROAD = 'road'
 CROSSROAD = 'crossroad'
 T_JUNCTION = 't_junction'
 TURN = 'turn'
 
-# Limits for road types
 CROSSROAD_LIMIT = 8
 T_JUNCTION_LIMIT = 10
 TURN_LIMIT = 20
 
-# Minimum distance between roads
 MIN_DISTANCE = 5
 
-# Constants for building sizes
 BIG_BUILDING = 'big_building'
 MEDIUM_BUILDING = 'medium_building'
 SMALL_BUILDING = 'small_building'
@@ -175,19 +170,16 @@ class MapGenerator:
                 count += 1
 
     def is_location_valid_for_building(self, x, y, width, height):
-        # Check if any cell in the proposed area is a road or another building
         for i in range(x, x + width):
             for j in range(y, y + height):
                 if i >= 0 and i < self.size and j >= 0 and j < self.size:
                     if self.map[i][j] != EMPTY:
                         return False
-        # Check the surrounding cells for roads within 1 cell distance
         road_found = False
         for i in range(max(0, x - 1), min(self.size, x + width + 1)):
             for j in range(max(0, y - 1), min(self.size, y + height + 1)):
                 if self.map[i][j] in ['vertical_road', 'horizontal_road', CROSSROAD, 'tjunction_up', 'tjunction_down', 'tjunction_left', 'tjunction_right', 'turn_right_up', 'turn_left_up', 'turn_right_down', 'turn_left_down']:
                     road_found = True
-                # Ensure a minimum distance of 2 cells from other buildings
                 if i in range(x, x + width) and j in range(y, y + height):
                     continue
                 if self.map[i][j] in BUILDING_SIZES:
@@ -203,7 +195,6 @@ class MapDisplay(tk.Frame):
         self.parent = parent
         self.map_data = map_data
 
-        # Load images
         self.images = {
             'vertical_road': ImageTk.PhotoImage(Image.open("asset/vertical_road.png")),
             'horizontal_road': ImageTk.PhotoImage(Image.open("asset/horizontal_road.png")),
@@ -224,11 +215,9 @@ class MapDisplay(tk.Frame):
             'grass': ImageTk.PhotoImage(Image.open("asset/grass.png"))  # Tambahkan gambar rumput
         }
 
-        # Frame untuk kanvas peta dan tombol
         self.main_frame = tk.Frame(self)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
 
-        # Kanvas untuk menampilkan peta dengan scrollbars
         self.canvas = tk.Canvas(self.main_frame, bg="white", scrollregion=(0, 0, MAP_SIZE * CELL_SIZE, MAP_SIZE * CELL_SIZE))
         self.canvas.grid(row=0, column=0, sticky=tk.NSEW)
         
@@ -244,7 +233,6 @@ class MapDisplay(tk.Frame):
         
         self.draw_map()
 
-        # Frame untuk tombol
         self.button_frame = tk.Frame(self.main_frame)
         self.button_frame.grid(row=0, column=2, padx=10, pady=10, sticky=tk.N)
 
@@ -276,10 +264,8 @@ class MapDisplay(tk.Frame):
         return False
 
     def redesign_map(self):
-        # Generate new map data
         map_generator = MapGenerator(MAP_SIZE)
         self.map_data = map_generator.get_map()
-        # Redraw map
         self.draw_map()
 
 def main():

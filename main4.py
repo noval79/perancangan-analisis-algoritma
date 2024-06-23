@@ -2,26 +2,26 @@ from PIL import Image, ImageTk
 import tkinter as tk
 import random
 
-# Constants for map size
+#Konstanta untuk ukuran peta
 MAP_SIZE = 150
-CELL_SIZE = 32  # Adjust to the size of the image per cell
+CELL_SIZE = 32  #Sesuaikan ukuran gambar per se
 
-# Constants for different road types
+#Konstanta untuk berbagai jenis jalan
 EMPTY = 0
 ROAD = 'road'
 CROSSROAD = 'crossroad'
 T_JUNCTION = 't_junction'
 TURN = 'turn'
 
-# Limits for road types
+#Batas untuk berbagai jenis jalan
 CROSSROAD_LIMIT = 8
 T_JUNCTION_LIMIT = 10
 TURN_LIMIT = 20
 
-# Minimum distance between roads
+#Jarak minimum antara jalan
 MIN_DISTANCE = 5
 
-# Constants for building sizes
+#Konstanta untuk ukuran bangunan
 BIG_BUILDING = 'big_building'
 MEDIUM_BUILDING = 'medium_building'
 SMALL_BUILDING = 'small_building'
@@ -33,7 +33,7 @@ BUILDING_SIZES = {
     MEDIUM_BUILDING: (5, 3),
     SMALL_BUILDING: (2, 2),
     HOUSE: (1, 2),
-    TREE: (3, 2)  # Tree size updated to 3x2
+    TREE: (3, 2)  #Ukuran pohon diperbarui menjadi 3x2
 }
 
 BUILDING_IMAGES = {
@@ -59,7 +59,7 @@ class MapGenerator:
         self.generate_map()
     
     def generate_map(self):
-        # Clear the map
+        #Membersihkan peta
         self.map = [[EMPTY for _ in range(self.size)] for _ in range(self.size)]
         crossroad_count = 0
         t_junction_count = 0
@@ -185,19 +185,19 @@ class MapGenerator:
                 count += 1
 
     def is_location_valid_for_building(self, x, y, width, height):
-        # Check if any cell in the proposed area is a road or another building
+        #Memeriksa apakah ada sel mana pun di area yang diusulkan adalah jalan atau bangunan lain
         for i in range(x, x + width):
             for j in range(y, y + height):
                 if i >= 0 and i < self.size and j >= 0 and j < self.size:
                     if self.map[i][j] != EMPTY:
                         return False
-        # Check the surrounding cells for roads within 1 cell distance
+        #Memeriksa sel-sel sekitar untuk jalan dalam jarak 1 sel
         road_found = False
         for i in range(max(0, x - 1), min(self.size, x + width + 1)):
             for j in range(max(0, y - 1), min(self.size, y + height + 1)):
                 if self.map[i][j] in ['vertical_road', 'horizontal_road', CROSSROAD, 'tjunction_up', 'tjunction_down', 'tjunction_left', 'tjunction_right', 'turn_right_up', 'turn_left_up', 'turn_right_down', 'turn_left_down']:
                     road_found = True
-                # Ensure a minimum distance of 2 cells from other buildings
+                #Memastikan jarak minimum 2 sel dari bangunan lain
                 if i in range(x, x + width) and j in range(y, y + height):
                     continue
                 if self.map[i][j] in BUILDING_SIZES:
@@ -205,13 +205,13 @@ class MapGenerator:
         return road_found
 
     def is_location_valid_for_tree(self, x, y, width, height):
-        # Check if any cell in the proposed area is not empty
+        #Memeriksa apakah ada sel mana pun di area yang diusulkan tidak kosong
         for i in range(x, x + width):
             for j in range(y, y + height):
                 if i >= 0 and i < self.size and j >= 0 and j < self.size:
                     if self.map[i][j] != EMPTY:
                         return False
-        # Ensure a minimum distance of 1 cell from other trees
+        # Pastikan jarak minimum 1 sel dari pohon lain
         for i in range(max(0, x - 1), min(self.size, x + width + 1)):
             for j in range(max(0, y - 1), min(self.size, y + height + 1)):
                 if self.map[i][j] == TREE:
@@ -245,14 +245,18 @@ class MapDisplay(tk.Frame):
             SMALL_BUILDING: ImageTk.PhotoImage(Image.open(f"asset/{BUILDING_IMAGES[SMALL_BUILDING]}")),
             HOUSE: ImageTk.PhotoImage(Image.open(f"asset/{BUILDING_IMAGES[HOUSE]}")),
             TREE: ImageTk.PhotoImage(Image.open(f"asset/{BUILDING_IMAGES[TREE]}")),
-            'grass': ImageTk.PhotoImage(Image.open("asset/grass.png"))  # Add grass image
+            'grass': ImageTk.PhotoImage(Image.open("asset/grass.png"))  # Add grass image  
         }
 
-        # Frame for map canvas and buttons
+        #Frame untuk kanvas peta dan tombol
         self.main_frame = tk.Frame(self)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
 
+        
         # Canvas to display the map with scrollbars
+
+        #Canvas untuk menampilkan peta dengan scrollbar
+
         self.canvas = tk.Canvas(self.main_frame, bg="green", scrollregion=(0, 0, MAP_SIZE * CELL_SIZE, MAP_SIZE * CELL_SIZE))
         self.canvas.grid(row=0, column=0, sticky=tk.NSEW)
         
@@ -268,13 +272,14 @@ class MapDisplay(tk.Frame):
         
         self.draw_map()
 
-        # Frame for buttons
+        # Frame untuk tombol
         self.button_frame = tk.Frame(self.main_frame)
         self.button_frame.grid(row=0, column=2, padx=10, pady=10, sticky=tk.N)
 
         self.redesign_button = tk.Button(self.button_frame, text="Redesign", command=self.redesign_map)
         self.redesign_button.pack()
 
+        
         # Bind mouse wheel events for scrolling
         self.canvas.bind_all("<MouseWheel>", self.on_mouse_wheel)  # Windows
         self.canvas.bind_all("<Shift-MouseWheel>", self.on_horizontal_scroll)  # Horizontal scroll for Windows
@@ -282,6 +287,15 @@ class MapDisplay(tk.Frame):
         self.canvas.bind_all("<Button-5>", self.on_mouse_wheel)    # Linux (scroll down)
         self.canvas.bind_all("<Shift-Button-4>", self.on_horizontal_scroll)    # Horizontal scroll for Linux
         self.canvas.bind_all("<Shift-Button-5>", self.on_horizontal_scroll)    # Horizontal scroll for Linux
+
+        #Pergerakan Mouse
+        self.canvas.bind_all("<MouseWheel>", self.on_mouse_wheel)  # Windows
+        self.canvas.bind_all("<Shift-MouseWheel>", self.on_horizontal_scroll)  # Horizontal scroll untuk Windows
+        self.canvas.bind_all("<Button-4>", self.on_mouse_wheel)    # Linux (scroll up)
+        self.canvas.bind_all("<Button-5>", self.on_mouse_wheel)    # Linux (scroll down)
+        self.canvas.bind_all("<Shift-Button-4>", self.on_horizontal_scroll)    # Horizontal scroll untuk Linux
+        self.canvas.bind_all("<Shift-Button-5>", self.on_horizontal_scroll)    # Horizontal scroll untuk Linux
+
 
     def draw_map(self):
         self.canvas.delete("all")
@@ -308,10 +322,10 @@ class MapDisplay(tk.Frame):
         return False
 
     def redesign_map(self):
-        # Generate new map data
+        #membuat data map baru
         map_generator = MapGenerator(MAP_SIZE)
         self.map_data = map_generator.get_map()
-        # Redraw map
+        # menggambar ulang map
         self.draw_map()
 
     def on_mouse_wheel(self, event):
