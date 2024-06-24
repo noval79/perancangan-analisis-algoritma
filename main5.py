@@ -4,7 +4,7 @@ import random
 
 # Constants for map size
 MAP_SIZE = 150
-CELL_SIZE = 32  # Adjust to the size of the image per cell
+CELL_SIZE = 32
 
 # Constants for different road types
 EMPTY = 0
